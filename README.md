@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # SignSight
 
 A client-side traffic sign recognition web app powered by the trained 43-class Keras model in this project. The browser resizes an uploaded image to `30x30`, normalizes RGB values to `0..1`, and runs inference locally with TensorFlow.js.
@@ -38,3 +39,6 @@ No environment variables or server-side model hosting are needed. Inference is p
 ## Model notes
 
 The model was trained on the GTSRB-style dataset included under `archive/Train`, using 43 classes and `30x30` RGB images. The notebook reports approximately 99.5% validation accuracy, but real-world images can be less reliable when signs are blurry, occluded, or poorly lit.
+=======
+# traffic-sign-recognition-project
+>>>>>>> decedea0039cbec4ba769ce6eeedad4c58559d98
