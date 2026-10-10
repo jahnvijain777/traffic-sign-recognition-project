@@ -1,0 +1,3 @@
+# Project implementation prompt
+
+Build a GitHub-ready traffic sign recognition web app from the existing trained model in `archive/training/TSR.h5`. Use a Vite + React + TypeScript frontend suitable for Vercel. Export the Keras model to TensorFlow.js, run inference entirely in the browser, resize uploaded images to 30x30 RGB, normalize pixels to 0..1, and classify them into the 43 traffic-sign labels from the training notebook. Provide a polished responsive upload/dropzone UI with image preview, confidence, alternative predictions, model status, privacy messaging, and clear local/Vercel setup instructions. Do not require Python or environment variables at runtime, and verify the app with a production build and a real bundled test image.
