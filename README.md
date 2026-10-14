@@ -153,8 +153,10 @@ This project explores practical applications of machine learning, computer visio
 **Jahnvi Jain**
 
 GitHub: [@jahnvijain777](https://github.com/jahnvijain777)
+
 GitHub: [@chahatpreet2301-arch](https://github.com/chahatpreet2301-arch)
-GitHub: [@sumalgurvir-debug](https://github.com/umalgurvir-debug)
+
+GitHub: [@sumalgurvir-debug](https://github.com/sumalgurvir-debug)
 
 ---
 
