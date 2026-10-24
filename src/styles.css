@@ -24,7 +24,8 @@ body {
     #071426;
 }
 
-button, input {
+button,
+input {
   font: inherit;
 }
 
@@ -37,17 +38,21 @@ button, input {
   flex-direction: column;
 }
 
-/* NAVIGATION */
+/* =========================
+   NAVIGATION
+========================= */
 
 .nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 28px;
   padding-bottom: 24px;
   border-bottom: 1px solid #263b50;
 }
 
 .brand {
+  flex-shrink: 0;
   font-size: 1.35rem;
   font-weight: 700;
   letter-spacing: -0.05em;
@@ -58,14 +63,48 @@ button, input {
   margin-right: 10px;
 }
 
-.nav-note {
-  color: #94a3b8;
-  font: 500 0.7rem "DM Mono", monospace;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+.nav-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 48px;
 }
 
-/* HERO */
+.nav-links a {
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav-links a:hover,
+.nav-links a:focus-visible {
+  color: #facc15;
+}
+
+.nav-button {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #facc15;
+  color: #071426;
+  padding: 13px 20px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.nav-button:hover {
+  background: #fde047;
+}
+
+/* =========================
+   HERO SECTION
+========================= */
 
 .hero {
   max-width: 850px;
@@ -99,12 +138,63 @@ button, input {
   max-width: 600px;
 }
 
-/* DETECTION WORKSPACE */
+/* HERO BUTTONS */
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  margin-top: 32px;
+}
+
+.primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 24px;
+  background: #facc15;
+  color: #071426;
+  border: 1px solid #facc15;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.primary-button:hover {
+  background: #fde047;
+}
+
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 24px;
+  background: transparent;
+  color: #f8fafc;
+  border: 1px solid #52677d;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.2s ease;
+}
+
+.secondary-button:hover {
+  border-color: #facc15;
+}
+
+/* =========================
+   DETECTION WORKSPACE
+========================= */
 
 .workspace {
   display: grid;
   grid-template-columns: 1.08fr 0.92fr;
   gap: 20px;
+  scroll-margin-top: 30px;
 }
 
 .dropzone,
@@ -177,7 +267,9 @@ button, input {
   font: 0.72rem "DM Mono", monospace;
 }
 
-/* RESULT CARD */
+/* =========================
+   RESULT CARD
+========================= */
 
 .result-card {
   background: #10243a;
@@ -252,7 +344,9 @@ button, input {
   font-family: "DM Mono", monospace;
 }
 
-/* MODEL STATUS */
+/* =========================
+   MODEL STATUS
+========================= */
 
 .model-status {
   border-top: 1px solid #263b50;
@@ -296,7 +390,63 @@ button, input {
   }
 }
 
-/* FOOTER */
+/* =========================
+   ABOUT SECTION
+========================= */
+
+.about-section {
+  margin-top: 90px;
+  padding: 65px 45px;
+  background: #10243a;
+  border: 1px solid #243b53;
+  border-radius: 12px;
+  scroll-margin-top: 30px;
+}
+
+.about-section h2 {
+  color: #f8fafc;
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: -1.5px;
+  margin: 20px 0;
+}
+
+.about-section p {
+  color: #94a3b8;
+  line-height: 1.9;
+  max-width: 750px;
+  font-size: 1rem;
+}
+
+.about-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 45px;
+  padding-top: 30px;
+  border-top: 1px solid #334155;
+}
+
+.about-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.about-stats strong {
+  color: #facc15;
+  font-size: clamp(1.3rem, 2.5vw, 2rem);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.about-stats span {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+/* =========================
+   FOOTER
+========================= */
 
 footer {
   display: flex;
@@ -311,14 +461,46 @@ footer {
   letter-spacing: 0.06em;
 }
 
-/* RESPONSIVE */
+/* =========================
+   RESPONSIVE DESIGN
+========================= */
+
+@media (max-width: 900px) {
+  .nav {
+    flex-wrap: wrap;
+  }
+
+  .nav-links {
+    gap: 28px;
+  }
+
+  .nav-button {
+    padding: 12px 15px;
+  }
+}
 
 @media (max-width: 760px) {
   .shell {
     padding: 22px 20px;
   }
 
-  .nav-note {
+  .nav {
+    gap: 18px;
+  }
+
+  .nav-links {
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+    gap: 15px;
+    padding-top: 12px;
+  }
+
+  .nav-links a {
+    font-size: 0.85rem;
+  }
+
+  .nav-button {
     display: none;
   }
 
@@ -328,6 +510,11 @@ footer {
 
   .hero h1 {
     font-size: clamp(3rem, 12vw, 5rem);
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .workspace {
@@ -347,6 +534,20 @@ footer {
     flex-direction: column;
   }
 }
+
+@media (max-width: 600px) {
+  .about-section {
+    padding: 35px 22px;
+    margin-top: 55px;
+  }
+
+  .about-stats {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
+
+/* ACCESSIBILITY */
 
 @media (prefers-reduced-motion: reduce) {
   *,
