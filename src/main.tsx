@@ -186,6 +186,7 @@ function App() {
           <a href="#home">Home</a>
           <a href="#detect">Detection</a>
           <a href="#how-it-works">How It Works</a>
+          <a href="#classes">Sign Classes</a>
           <a href="#about">About</a>
         </div>
 
@@ -427,8 +428,6 @@ function App() {
 
         <div className="how-grid">
 
-          {/* STEP 01 */}
-
           <div className="how-card">
             <span className="how-number">
               01 / INPUT
@@ -443,8 +442,6 @@ function App() {
               into the detection workspace.
             </p>
           </div>
-
-          {/* STEP 02 */}
 
           <div className="how-card">
             <span className="how-number">
@@ -461,8 +458,6 @@ function App() {
             </p>
           </div>
 
-          {/* STEP 03 */}
-
           <div className="how-card">
             <span className="how-number">
               03 / OUTPUT
@@ -475,6 +470,91 @@ function App() {
             <p>
               View the predicted traffic sign, its
               confidence score, and other possibilities.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      {/* TRAFFIC SIGN CLASSES GALLERY */}
+
+      <section className="classes-section" id="classes">
+
+        <div className="eyebrow">
+          SUPPORTED SIGN CATEGORIES
+        </div>
+
+        <h2>Understanding Every Sign.</h2>
+
+        <p className="classes-intro">
+          SignSight recognises 43 traffic sign classes across
+          several important road sign categories.
+        </p>
+
+        <div className="classes-grid">
+
+          {/* SPEED LIMITS */}
+
+          <div className="class-card">
+            <span className="class-symbol">30</span>
+
+            <h3>Speed Limits</h3>
+
+            <p>
+              Signs that indicate maximum permitted
+              vehicle speeds.
+            </p>
+          </div>
+
+          {/* WARNING SIGNS */}
+
+          <div className="class-card">
+            <span className="class-symbol">!</span>
+
+            <h3>Warning Signs</h3>
+
+            <p>
+              Signs that alert drivers to potential
+              road hazards.
+            </p>
+          </div>
+
+          {/* PRIORITY SIGNS */}
+
+          <div className="class-card">
+            <span className="class-symbol">◇</span>
+
+            <h3>Priority Signs</h3>
+
+            <p>
+              Signs that communicate right-of-way
+              and road priority.
+            </p>
+          </div>
+
+          {/* PROHIBITORY SIGNS */}
+
+          <div className="class-card">
+            <span className="class-symbol">⊘</span>
+
+            <h3>Prohibitory Signs</h3>
+
+            <p>
+              Signs that indicate restricted or
+              prohibited actions.
+            </p>
+          </div>
+
+          {/* MANDATORY SIGNS */}
+
+          <div className="class-card">
+            <span className="class-symbol">→</span>
+
+            <h3>Mandatory Signs</h3>
+
+            <p>
+              Signs that indicate required directions
+              or movements.
             </p>
           </div>
 
