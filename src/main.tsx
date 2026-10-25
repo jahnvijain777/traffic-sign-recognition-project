@@ -185,6 +185,7 @@ function App() {
         <div className="nav-links">
           <a href="#home">Home</a>
           <a href="#detect">Detection</a>
+          <a href="#how-it-works">How It Works</a>
           <a href="#about">About</a>
         </div>
 
@@ -290,8 +291,6 @@ function App() {
               hidden
               onChange={(event) => {
                 onFile(event.target.files?.[0]);
-
-                // Allows selecting the same image again
                 event.target.value = "";
               }}
             />
@@ -407,6 +406,78 @@ function App() {
             </div>
 
           </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS SECTION */}
+
+      <section className="how-section" id="how-it-works">
+
+        <div className="eyebrow">
+          THE RECOGNITION PROCESS
+        </div>
+
+        <h2>How SignSight Works.</h2>
+
+        <p className="how-intro">
+          From image upload to intelligent classification,
+          explore how SignSight identifies traffic signs
+          in three simple steps.
+        </p>
+
+        <div className="how-grid">
+
+          {/* STEP 01 */}
+
+          <div className="how-card">
+            <span className="how-number">
+              01 / INPUT
+            </span>
+
+            <div className="how-icon">↑</div>
+
+            <h3>Upload Image</h3>
+
+            <p>
+              Select or drag and drop a traffic sign image
+              into the detection workspace.
+            </p>
+          </div>
+
+          {/* STEP 02 */}
+
+          <div className="how-card">
+            <span className="how-number">
+              02 / PROCESS
+            </span>
+
+            <div className="how-icon">◈</div>
+
+            <h3>AI Classification</h3>
+
+            <p>
+              The trained neural network processes the
+              image and evaluates 43 traffic sign classes.
+            </p>
+          </div>
+
+          {/* STEP 03 */}
+
+          <div className="how-card">
+            <span className="how-number">
+              03 / OUTPUT
+            </span>
+
+            <div className="how-icon">✓</div>
+
+            <h3>Recognition Result</h3>
+
+            <p>
+              View the predicted traffic sign, its
+              confidence score, and other possibilities.
+            </p>
+          </div>
+
         </div>
       </section>
 

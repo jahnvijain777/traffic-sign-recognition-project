@@ -681,3 +681,118 @@ footer {
     scroll-behavior: auto !important;
   }
 }
+
+/* =========================
+   PHASE 4: HOW IT WORKS
+========================= */
+
+.how-section {
+  margin-top: 100px;
+  scroll-margin-top: 30px;
+}
+
+.how-section h2 {
+  color: #f8fafc;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  line-height: 1.15;
+  margin: 18px 0;
+}
+
+.how-intro {
+  color: #94a3b8;
+  font-size: 1rem;
+  line-height: 1.8;
+  max-width: 650px;
+  margin-bottom: 38px;
+}
+
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.how-card {
+  min-width: 0;
+  padding: 32px 28px;
+  background: #10243a;
+  border: 1px solid #263b50;
+  border-radius: 12px;
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease;
+}
+
+.how-card:hover {
+  transform: translateY(-5px);
+  border-color: #facc15;
+  background: #152d46;
+}
+
+.how-number {
+  display: block;
+  color: #facc15;
+  font: 500 0.7rem "DM Mono", monospace;
+  letter-spacing: 0.12em;
+}
+
+.how-icon {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin: 30px 0 26px;
+  border-radius: 12px;
+  background: #facc1515;
+  border: 1px solid #facc1545;
+  color: #facc15;
+  font-size: 1.8rem;
+}
+
+.how-card h3 {
+  color: #f8fafc;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  margin: 0 0 14px;
+}
+
+.how-card p {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  line-height: 1.8;
+  margin: 0;
+}
+
+/* TABLET */
+
+@media (max-width: 900px) {
+  .how-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+  .how-section {
+    margin-top: 65px;
+  }
+
+  .how-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .how-card {
+    padding: 28px 24px;
+  }
+
+  .how-icon {
+    margin: 24px 0;
+  }
+}
+
