@@ -370,6 +370,7 @@ function App() {
 
         <div className="nav-links">
           <a href="#home">Home</a>
+          <a href="#dashboard">Dashboard</a>
           <a href="#detect">Detection</a>
           <a href="#live-camera">Live Camera</a>
           <a href="#how-it-works">How It Works</a>
@@ -410,6 +411,56 @@ function App() {
           </a>
         </div>
       </section>
+
+{/* PHASE 7 - PREMIUM DASHBOARD */}
+
+<section className="dashboard-header" id="dashboard">
+  <div className="dashboard-topline">
+    <span className="eyebrow">
+      SIGNSIGHT / AI WORKSPACE
+    </span>
+
+    <span className="dashboard-version">
+      PLATFORM OVERVIEW / V1.0
+    </span>
+  </div>
+
+  <h2>
+    Recognition Dashboard<span>.</span>
+  </h2>
+
+  <p>
+    Your intelligent workspace for traffic sign classification
+    and real-time computer vision.
+  </p>
+
+  <div className="dashboard-stats">
+    <div className="dashboard-stat">
+      <span className="dashboard-stat-label">
+        SUPPORTED CLASSES
+      </span>
+      <strong>43</strong>
+      <small>Traffic sign classes supported</small>
+    </div>
+
+    <div className="dashboard-stat">
+      <span className="dashboard-stat-label">
+        IMAGE INPUT
+      </span>
+      <strong>30 × 30</strong>
+      <small>RGB neural network input</small>
+    </div>
+
+    <div className="dashboard-stat">
+      <span className="dashboard-stat-label">
+        RECOGNITION MODES
+      </span>
+      <strong>02</strong>
+      <small>Image upload and live camera</small>
+    </div>
+  </div>
+</section>
+
 
       {/* DETECTION SECTION */}
 
