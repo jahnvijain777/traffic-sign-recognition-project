@@ -58,6 +58,8 @@ type Prediction = {
 
 function App() {
   const [model, setModel] = React.useState<tf.LayersModel | null>(null);
+
+  // IMAGE UPLOAD STATES
   const [imageUrl, setImageUrl] = React.useState<string | null>(null);
   const [prediction, setPrediction] = React.useState<Prediction | null>(null);
   const [alternatives, setAlternatives] = React.useState<Prediction[]>([]);
@@ -69,18 +71,38 @@ function App() {
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  // LOAD ML MODEL
+  // CAMERA STATES
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const streamRef = React.useRef<MediaStream | null>(null);
+  const cameraTimerRef = React.useRef<number | null>(null);
+  const cameraBusyRef = React.useRef(false);
+  const cameraSessionRef = React.useRef(0);
+
+  const [cameraActive, setCameraActive] = React.useState(false);
+  const [cameraStarting, setCameraStarting] = React.useState(false);
+  const [cameraPrediction, setCameraPrediction] =
+    React.useState<Prediction | null>(null);
+
+  const [cameraStatus, setCameraStatus] = React.useState(
+    "Camera is currently off."
+  );
+
+  // LOAD EXISTING ML MODEL
 
   React.useEffect(() => {
     let active = true;
+    let loadedModel: tf.LayersModel | null = null;
 
     tf.loadLayersModel("/model/model.json")
       .then((loaded) => {
         if (active) {
+          loadedModel = loaded;
           setModel(loaded);
           setStatus(
             "Model ready · predictions run locally in your browser"
           );
+        } else {
+          loaded.dispose();
         }
       })
       .catch((error: unknown) => {
@@ -95,8 +117,41 @@ function App() {
 
     return () => {
       active = false;
+      loadedModel?.dispose();
     };
   }, []);
+
+  // SHARED CLASSIFICATION FUNCTION
+
+  const predictSign = async (
+    source: HTMLImageElement | HTMLVideoElement,
+    currentModel: tf.LayersModel
+  ): Promise<Prediction[]> => {
+    const output = tf.tidy(() => {
+      const input = tf.browser
+        .fromPixels(source)
+        .resizeBilinear([30, 30])
+        .toFloat()
+        .div(255)
+        .expandDims(0);
+
+      return currentModel.predict(input) as tf.Tensor;
+    });
+
+    try {
+      const scores = Array.from(await output.data());
+
+      return scores
+        .map((confidence, index) => ({
+          index,
+          name: SIGN_NAMES[index],
+          confidence,
+        }))
+        .sort((a, b) => b.confidence - a.confidence);
+    } finally {
+      output.dispose();
+    }
+  };
 
   // IMAGE CLASSIFICATION
 
@@ -120,27 +175,7 @@ function App() {
 
       await image.decode();
 
-      const values = tf.tidy(() => {
-        const input = tf.browser
-          .fromPixels(image)
-          .resizeBilinear([30, 30])
-          .toFloat()
-          .div(255)
-          .expandDims(0);
-
-        return model.predict(input) as tf.Tensor;
-      });
-
-      const scores = Array.from(await values.data());
-      values.dispose();
-
-      const ranked = scores
-        .map((confidence, index) => ({
-          index,
-          name: SIGN_NAMES[index],
-          confidence,
-        }))
-        .sort((a, b) => b.confidence - a.confidence);
+      const ranked = await predictSign(image, model);
 
       setPrediction(ranked[0]);
       setAlternatives(ranked.slice(1, 4));
@@ -172,6 +207,157 @@ function App() {
     void classify(file);
   };
 
+  // STOP CAMERA AND RELEASE WEBCAM
+
+  const stopCamera = React.useCallback(() => {
+    cameraSessionRef.current += 1;
+
+    if (cameraTimerRef.current !== null) {
+      window.clearInterval(cameraTimerRef.current);
+      cameraTimerRef.current = null;
+    }
+
+    streamRef.current?.getTracks().forEach((track) => {
+      track.stop();
+    });
+
+    streamRef.current = null;
+
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.srcObject = null;
+    }
+
+    setCameraActive(false);
+    setCameraStarting(false);
+    setCameraPrediction(null);
+    setCameraStatus("Camera is currently off.");
+  }, []);
+
+  // START CAMERA
+
+  const startCamera = async () => {
+    if (!model || cameraActive || cameraStarting) return;
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setCameraStatus(
+        "Camera access is unavailable. Use localhost or a secure HTTPS website."
+      );
+      return;
+    }
+
+    setCameraStarting(true);
+    setCameraPrediction(null);
+    setCameraStatus("Requesting camera permission…");
+
+    const session = ++cameraSessionRef.current;
+    let stream: MediaStream | null = null;
+
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          facingMode: "environment",
+        },
+      });
+
+      if (session !== cameraSessionRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
+      const video = videoRef.current;
+
+      if (!video) {
+        throw new Error("Camera preview is unavailable.");
+      }
+
+      video.srcObject = stream;
+      await video.play();
+
+      if (session !== cameraSessionRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
+      streamRef.current = stream;
+      setCameraActive(true);
+      setCameraStatus(
+        "Camera active · position one traffic sign clearly in the frame."
+      );
+
+      // CLASSIFY APPROXIMATELY ONCE PER SECOND
+
+      cameraTimerRef.current = window.setInterval(async () => {
+        const currentVideo = videoRef.current;
+
+        if (
+          cameraBusyRef.current ||
+          session !== cameraSessionRef.current ||
+          !currentVideo ||
+          currentVideo.readyState < HTMLMediaElement.HAVE_CURRENT_DATA
+        ) {
+          return;
+        }
+
+        cameraBusyRef.current = true;
+
+        try {
+          const ranked = await predictSign(currentVideo, model);
+
+          if (session === cameraSessionRef.current) {
+            setCameraPrediction(ranked[0]);
+          }
+        } catch (error) {
+          console.error("Live classification failed:", error);
+
+          if (session === cameraSessionRef.current) {
+            setCameraStatus(
+              "Could not process the camera frame. Try restarting the camera."
+            );
+          }
+        } finally {
+          cameraBusyRef.current = false;
+        }
+      }, 1000);
+    } catch (error) {
+      console.error("Camera failed to start:", error);
+
+      stream?.getTracks().forEach((track) => track.stop());
+
+      if (session === cameraSessionRef.current) {
+        if (videoRef.current) {
+          videoRef.current.srcObject = null;
+        }
+
+        setCameraActive(false);
+        setCameraStatus(
+          "Camera unavailable. Check Safari camera permission and try again."
+        );
+      }
+    } finally {
+      if (session === cameraSessionRef.current) {
+        setCameraStarting(false);
+      }
+    }
+  };
+
+  // CLEAN UP CAMERA WHEN COMPONENT UNMOUNTS
+
+  React.useEffect(() => {
+    return () => {
+      cameraSessionRef.current += 1;
+
+      if (cameraTimerRef.current !== null) {
+        window.clearInterval(cameraTimerRef.current);
+      }
+
+      streamRef.current?.getTracks().forEach((track) => {
+        track.stop();
+      });
+    };
+  }, []);
+
   return (
     <main className="shell">
 
@@ -185,6 +371,7 @@ function App() {
         <div className="nav-links">
           <a href="#home">Home</a>
           <a href="#detect">Detection</a>
+          <a href="#live-camera">Live Camera</a>
           <a href="#how-it-works">How It Works</a>
           <a href="#classes">Sign Classes</a>
           <a href="#about">About</a>
@@ -218,8 +405,8 @@ function App() {
             Explore Detection →
           </a>
 
-          <a href="#about" className="secondary-button">
-            About the Technology
+          <a href="#live-camera" className="secondary-button">
+            Try Live Camera
           </a>
         </div>
       </section>
@@ -326,8 +513,6 @@ function App() {
 
                   <h2>{prediction.name}</h2>
 
-                  {/* CONFIDENCE PROGRESS BAR */}
-
                   <div
                     className="confidence-track"
                     role="progressbar"
@@ -360,8 +545,6 @@ function App() {
               </div>
             )}
 
-            {/* UPLOAD ANOTHER IMAGE */}
-
             {prediction && !loading && (
               <button
                 type="button"
@@ -372,18 +555,13 @@ function App() {
               </button>
             )}
 
-            {/* ALTERNATIVE PREDICTIONS */}
-
             {alternatives.length > 0 && (
               <div className="alternatives">
 
                 <span>Other possibilities</span>
 
                 {alternatives.map((item) => (
-                  <div
-                    className="alternative"
-                    key={item.index}
-                  >
+                  <div className="alternative" key={item.index}>
                     <b>{item.name}</b>
 
                     <span>
@@ -393,8 +571,6 @@ function App() {
                 ))}
               </div>
             )}
-
-            {/* MODEL STATUS */}
 
             <div className="model-status">
               <span
@@ -407,6 +583,155 @@ function App() {
             </div>
 
           </div>
+        </div>
+      </section>
+
+      {/* LIVE CAMERA RECOGNITION */}
+
+      <section className="camera-section" id="live-camera">
+
+        <div className="eyebrow">
+          REAL-TIME COMPUTER VISION
+        </div>
+
+        <h2>Live Camera Recognition.</h2>
+
+        <p className="camera-intro">
+          Use your webcam to classify traffic signs in real time.
+          Position one sign clearly in the camera frame for better results.
+        </p>
+
+        <div className="camera-workspace">
+
+          <div className="camera-preview-card">
+
+            <div className="card-label">
+              LIVE CAMERA FEED
+            </div>
+
+            <div className="camera-preview">
+
+              <video
+                ref={videoRef}
+                autoPlay
+                muted
+                playsInline
+                aria-label="Live webcam preview"
+              />
+
+              {!cameraActive && (
+                <div className="camera-placeholder">
+                  <div className="camera-placeholder-icon">◉</div>
+                  <strong>
+                    {cameraStarting
+                      ? "Starting camera…"
+                      : "Camera is off"}
+                  </strong>
+                  <span>
+                    Start the camera to begin live recognition.
+                  </span>
+                </div>
+              )}
+
+              {cameraActive && (
+                <div className="camera-guide" aria-hidden="true">
+                  <span />
+                </div>
+              )}
+
+            </div>
+
+            <div className="camera-controls">
+
+              {!cameraActive ? (
+                <button
+                  type="button"
+                  className="primary-button"
+                  onClick={() => void startCamera()}
+                  disabled={!model || cameraStarting}
+                >
+                  {cameraStarting
+                    ? "Starting Camera…"
+                    : "◉ Start Camera"}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="camera-stop-button"
+                  onClick={stopCamera}
+                >
+                  ■ Stop Camera
+                </button>
+              )}
+
+            </div>
+
+            <p className="camera-status" role="status">
+              {cameraStatus}
+            </p>
+
+          </div>
+
+          <div className="camera-result-card">
+
+            <div className="card-label">
+              LIVE RECOGNITION RESULT
+            </div>
+
+            {cameraActive && cameraPrediction ? (
+              <div className="camera-result">
+
+                <span className="camera-result-label">
+                  PREDICTED TRAFFIC SIGN
+                </span>
+
+                <h3>{cameraPrediction.name}</h3>
+
+                <strong className="camera-confidence">
+                  {Math.round(cameraPrediction.confidence * 100)}%
+                  {" "}confidence
+                </strong>
+
+                <div
+                  className="confidence-track"
+                  role="progressbar"
+                  aria-label="Live prediction confidence"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={Math.round(
+                    cameraPrediction.confidence * 100
+                  )}
+                >
+                  <div
+                    className="confidence-fill"
+                    style={{
+                      width: `${Math.max(
+                        0,
+                        Math.min(
+                          100,
+                          cameraPrediction.confidence * 100
+                        )
+                      )}%`,
+                    }}
+                  />
+                </div>
+
+                <p className="camera-note">
+                  Predictions update approximately once per second.
+                  Confidence is not a guarantee of accuracy.
+                </p>
+
+              </div>
+            ) : (
+              <div className="camera-result-empty">
+                {cameraActive
+                  ? "Analysing camera frames…"
+                  : "Start the camera to see live predictions."}
+              </div>
+            )}
+
+          </div>
+
         </div>
       </section>
 
@@ -429,14 +754,9 @@ function App() {
         <div className="how-grid">
 
           <div className="how-card">
-            <span className="how-number">
-              01 / INPUT
-            </span>
-
+            <span className="how-number">01 / INPUT</span>
             <div className="how-icon">↑</div>
-
             <h3>Upload Image</h3>
-
             <p>
               Select or drag and drop a traffic sign image
               into the detection workspace.
@@ -444,32 +764,22 @@ function App() {
           </div>
 
           <div className="how-card">
-            <span className="how-number">
-              02 / PROCESS
-            </span>
-
+            <span className="how-number">02 / PROCESS</span>
             <div className="how-icon">◈</div>
-
             <h3>AI Classification</h3>
-
             <p>
-              The trained neural network processes the
-              image and evaluates 43 traffic sign classes.
+              The trained neural network processes the image
+              and evaluates 43 traffic sign classes.
             </p>
           </div>
 
           <div className="how-card">
-            <span className="how-number">
-              03 / OUTPUT
-            </span>
-
+            <span className="how-number">03 / OUTPUT</span>
             <div className="how-icon">✓</div>
-
             <h3>Recognition Result</h3>
-
             <p>
-              View the predicted traffic sign, its
-              confidence score, and other possibilities.
+              View the predicted traffic sign, its confidence
+              score, and other possibilities.
             </p>
           </div>
 
@@ -493,68 +803,43 @@ function App() {
 
         <div className="classes-grid">
 
-          {/* SPEED LIMITS */}
-
           <div className="class-card">
             <span className="class-symbol">30</span>
-
             <h3>Speed Limits</h3>
-
             <p>
-              Signs that indicate maximum permitted
-              vehicle speeds.
+              Signs that indicate maximum permitted vehicle speeds.
             </p>
           </div>
-
-          {/* WARNING SIGNS */}
 
           <div className="class-card">
             <span className="class-symbol">!</span>
-
             <h3>Warning Signs</h3>
-
             <p>
-              Signs that alert drivers to potential
-              road hazards.
+              Signs that alert drivers to potential road hazards.
             </p>
           </div>
-
-          {/* PRIORITY SIGNS */}
 
           <div className="class-card">
             <span className="class-symbol">◇</span>
-
             <h3>Priority Signs</h3>
-
             <p>
-              Signs that communicate right-of-way
-              and road priority.
+              Signs that communicate right-of-way and road priority.
             </p>
           </div>
-
-          {/* PROHIBITORY SIGNS */}
 
           <div className="class-card">
             <span className="class-symbol">⊘</span>
-
             <h3>Prohibitory Signs</h3>
-
             <p>
-              Signs that indicate restricted or
-              prohibited actions.
+              Signs that indicate restricted or prohibited actions.
             </p>
           </div>
 
-          {/* MANDATORY SIGNS */}
-
           <div className="class-card">
             <span className="class-symbol">→</span>
-
             <h3>Mandatory Signs</h3>
-
             <p>
-              Signs that indicate required directions
-              or movements.
+              Signs that indicate required directions or movements.
             </p>
           </div>
 
@@ -569,9 +854,7 @@ function App() {
           BEHIND THE TECHNOLOGY
         </div>
 
-        <h2>
-          Intelligence Behind Every Sign.
-        </h2>
+        <h2>Intelligence Behind Every Sign.</h2>
 
         <p>
           SignSight uses Deep Learning and Computer Vision to
@@ -603,13 +886,8 @@ function App() {
       {/* FOOTER */}
 
       <footer>
-        <span>
-          43 sign classes · 30×30 RGB input
-        </span>
-
-        <span>
-          Built with TensorFlow.js · runs client-side
-        </span>
+        <span>43 sign classes · 30×30 RGB input</span>
+        <span>Built with TensorFlow.js · runs client-side</span>
       </footer>
 
     </main>

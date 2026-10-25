@@ -907,4 +907,256 @@ footer {
   }
 }
 
+/* =========================
+   PHASE 6: LIVE CAMERA
+========================= */
+
+.camera-section {
+  margin-top: 100px;
+  scroll-margin-top: 30px;
+}
+
+.camera-section h2 {
+  color: #f8fafc;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  line-height: 1.15;
+  margin: 18px 0;
+}
+
+.camera-intro {
+  color: #94a3b8;
+  font-size: 1rem;
+  line-height: 1.8;
+  max-width: 680px;
+  margin-bottom: 38px;
+}
+
+.camera-workspace {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 22px;
+  align-items: stretch;
+}
+
+.camera-preview-card,
+.camera-result-card {
+  min-width: 0;
+  padding: 26px;
+  background: #10243a;
+  border: 1px solid #263b50;
+  border-radius: 12px;
+}
+
+.camera-preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  margin-top: 24px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #071426;
+  border: 1px solid #263b50;
+}
+
+.camera-preview video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px;
+  text-align: center;
+  background: #071426;
+}
+
+.camera-placeholder-icon {
+  display: grid;
+  place-items: center;
+  width: 66px;
+  height: 66px;
+  border: 1px solid #facc1555;
+  border-radius: 50%;
+  background: #facc1515;
+  color: #facc15;
+  font-size: 2rem;
+}
+
+.camera-placeholder strong {
+  color: #f8fafc;
+  font-size: 1.15rem;
+}
+
+.camera-placeholder span {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.camera-guide {
+  position: absolute;
+  inset: 22%;
+  pointer-events: none;
+  border: 2px dashed #facc15;
+  border-radius: 12px;
+  box-shadow: 0 0 0 999px #07142630;
+}
+
+.camera-guide span {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #facc15;
+}
+
+.camera-controls {
+  display: flex;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.camera-controls button {
+  cursor: pointer;
+  font: inherit;
+}
+
+.camera-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.camera-stop-button {
+  padding: 14px 22px;
+  color: #f8fafc;
+  background: #243b53;
+  border: 1px solid #64748b;
+  border-radius: 7px;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.camera-stop-button:hover {
+  background: #334e68;
+}
+
+.camera-status {
+  margin: 18px 0 0;
+  color: #94a3b8;
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.camera-result-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.camera-result {
+  display: flex;
+  flex-direction: column;
+  margin-top: 48px;
+}
+
+.camera-result-label {
+  color: #94a3b8;
+  font: 500 0.7rem "DM Mono", monospace;
+  letter-spacing: 0.12em;
+}
+
+.camera-result h3 {
+  color: #f8fafc;
+  font-size: clamp(1.5rem, 3vw, 2.4rem);
+  letter-spacing: -0.05em;
+  line-height: 1.2;
+  margin: 18px 0 28px;
+  overflow-wrap: anywhere;
+}
+
+.camera-confidence {
+  display: block;
+  margin-bottom: 14px;
+  color: #facc15;
+  font-size: 1.15rem;
+}
+
+.camera-result .confidence-track {
+  width: 100%;
+}
+
+.camera-note {
+  margin-top: 25px;
+  color: #94a3b8;
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.camera-result-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 260px;
+  padding: 24px;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  text-align: center;
+}
+
+/* TABLET */
+
+@media (max-width: 900px) {
+  .camera-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .camera-result {
+    margin-top: 28px;
+  }
+
+  .camera-result-empty {
+    min-height: 140px;
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+  .camera-section {
+    margin-top: 65px;
+  }
+
+  .camera-preview-card,
+  .camera-result-card {
+    padding: 20px;
+  }
+
+  .camera-preview {
+    aspect-ratio: 4 / 3;
+  }
+
+  .camera-controls button {
+    width: 100%;
+  }
+
+  .camera-guide {
+    inset: 20%;
+  }
+}
+
+
 
