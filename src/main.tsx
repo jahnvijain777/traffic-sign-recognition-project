@@ -5,7 +5,6 @@ import * as tf from "@tensorflow/tfjs";
 import "./styles.css";
 
 const SIGN_NAMES = [
-  
   "Speed limit (20km/h)",
   "Speed limit (30km/h)",
   "Speed limit (50km/h)",
@@ -63,6 +62,7 @@ function App() {
   const [prediction, setPrediction] = React.useState<Prediction | null>(null);
   const [alternatives, setAlternatives] = React.useState<Prediction[]>([]);
   const [loading, setLoading] = React.useState(false);
+
   const [status, setStatus] = React.useState(
     "Loading recognition model…"
   );
@@ -70,6 +70,7 @@ function App() {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   // LOAD ML MODEL
+
   React.useEffect(() => {
     let active = true;
 
@@ -98,8 +99,9 @@ function App() {
   }, []);
 
   // IMAGE CLASSIFICATION
+
   const classify = async (file: File) => {
-    if (!model) return;
+    if (!model || loading) return;
 
     const url = URL.createObjectURL(file);
 
@@ -142,7 +144,13 @@ function App() {
 
       setPrediction(ranked[0]);
       setAlternatives(ranked.slice(1, 4));
-    } catch {
+
+      setStatus(
+        "Model ready · predictions run locally in your browser"
+      );
+    } catch (error) {
+      console.error("Image classification failed:", error);
+
       setStatus(
         "That image could not be processed. Please try a PNG or JPEG."
       );
@@ -151,10 +159,17 @@ function App() {
     }
   };
 
+  // FILE UPLOAD HANDLER
+
   const onFile = (file?: File) => {
-    if (file && file.type.startsWith("image/")) {
-      void classify(file);
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setStatus("Please upload a valid image file.");
+      return;
     }
+
+    void classify(file);
   };
 
   return (
@@ -209,112 +224,188 @@ function App() {
 
       {/* DETECTION SECTION */}
 
-      <section className="workspace" id="detect">
+      <section className="detection-section" id="detect">
 
-        <div
-          className={`dropzone ${imageUrl ? "has-image" : ""}`}
-          onClick={() => inputRef.current?.click()}
-          onDragOver={(event) => event.preventDefault()}
-          onDrop={(event) => {
-            event.preventDefault();
-            onFile(event.dataTransfer.files[0]);
-          }}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              inputRef.current?.click();
-            }
-          }}
-        >
-          {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt="Uploaded traffic sign"
-            />
-          ) : (
-            <div className="drop-content">
-              <div className="upload-icon">↑</div>
-
-              <strong>Drop a sign photo here</strong>
-
-              <span>
-                or click to browse · PNG, JPG or WebP
-              </span>
-            </div>
-          )}
-
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            hidden
-            onChange={(event) =>
-              onFile(event.target.files?.[0])
-            }
-          />
-        </div>
-
-        {/* PREDICTION RESULT */}
-
-        <div className="result-card">
-          <div className="card-label">
-            RECOGNITION RESULT
+        <div className="detection-heading">
+          <div className="eyebrow">
+            AI-POWERED RECOGNITION
           </div>
 
-          {loading ? (
-            <div className="result-placeholder">
-              <span className="spinner" />
-              Reading sign…
-            </div>
-          ) : prediction ? (
-            <div className="result">
-              <div className="result-index">
-                {String(prediction.index).padStart(2, "0")}
-              </div>
+          <h2>Traffic Sign Recognition</h2>
 
-              <div className="result-copy">
-                <span className="confidence">
-                  {Math.round(prediction.confidence * 100)}%
-                  confidence
-                </span>
+          <p>
+            Upload a traffic sign image to explore how SignSight
+            classifies road signs using deep learning.
+          </p>
+        </div>
 
-                <h2>{prediction.name}</h2>
-              </div>
-            </div>
-          ) : (
-            <div className="result-placeholder">
-              Upload an image to see the prediction
-            </div>
-          )}
+        <div className="workspace">
 
-          {alternatives.length > 0 && (
-            <div className="alternatives">
-              <span>Other possibilities</span>
+          {/* IMAGE UPLOAD */}
 
-              {alternatives.map((item) => (
-                <div
-                  className="alternative"
-                  key={item.index}
-                >
-                  <b>{item.name}</b>
-
-                  <span>
-                    {Math.round(item.confidence * 100)}%
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="model-status">
-            <span
-              className={
-                model ? "status-dot ready" : "status-dot"
+          <div
+            className={`dropzone ${imageUrl ? "has-image" : ""}`}
+            onClick={() => {
+              if (!loading) inputRef.current?.click();
+            }}
+            onDragOver={(event) => event.preventDefault()}
+            onDrop={(event) => {
+              event.preventDefault();
+              onFile(event.dataTransfer.files[0]);
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="Upload a traffic sign image"
+            onKeyDown={(event) => {
+              if (
+                !loading &&
+                (event.key === "Enter" || event.key === " ")
+              ) {
+                event.preventDefault();
+                inputRef.current?.click();
               }
-            />
+            }}
+          >
+            {imageUrl ? (
+              <img
+                src={imageUrl}
+                alt="Uploaded traffic sign"
+              />
+            ) : (
+              <div className="drop-content">
+                <div className="upload-icon">↑</div>
 
-            {status}
+                <strong>Drop a sign photo here</strong>
+
+                <span>
+                  or click to browse · PNG, JPG or WebP
+                </span>
+              </div>
+            )}
+
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              hidden
+              onChange={(event) => {
+                onFile(event.target.files?.[0]);
+
+                // Allows selecting the same image again
+                event.target.value = "";
+              }}
+            />
+          </div>
+
+          {/* PREDICTION RESULT */}
+
+          <div className="result-card">
+
+            <div className="card-label">
+              RECOGNITION RESULT
+            </div>
+
+            {loading ? (
+              <div className="result-placeholder">
+                <span className="spinner" />
+                Reading sign…
+              </div>
+            ) : prediction ? (
+              <div className="result">
+
+                <div className="result-index">
+                  {String(prediction.index).padStart(2, "0")}
+                </div>
+
+                <div className="result-copy">
+
+                  <span className="confidence">
+                    {Math.round(prediction.confidence * 100)}%
+                    {" "}confidence
+                  </span>
+
+                  <h2>{prediction.name}</h2>
+
+                  {/* CONFIDENCE PROGRESS BAR */}
+
+                  <div
+                    className="confidence-track"
+                    role="progressbar"
+                    aria-label="Prediction confidence"
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={Math.round(
+                      prediction.confidence * 100
+                    )}
+                  >
+                    <div
+                      className="confidence-fill"
+                      style={{
+                        width: `${Math.max(
+                          0,
+                          Math.min(
+                            100,
+                            prediction.confidence * 100
+                          )
+                        )}%`,
+                      }}
+                    />
+                  </div>
+
+                </div>
+              </div>
+            ) : (
+              <div className="result-placeholder">
+                Upload an image to see the prediction
+              </div>
+            )}
+
+            {/* UPLOAD ANOTHER IMAGE */}
+
+            {prediction && !loading && (
+              <button
+                type="button"
+                className="upload-again-button"
+                onClick={() => inputRef.current?.click()}
+              >
+                ↑ Upload Another Image
+              </button>
+            )}
+
+            {/* ALTERNATIVE PREDICTIONS */}
+
+            {alternatives.length > 0 && (
+              <div className="alternatives">
+
+                <span>Other possibilities</span>
+
+                {alternatives.map((item) => (
+                  <div
+                    className="alternative"
+                    key={item.index}
+                  >
+                    <b>{item.name}</b>
+
+                    <span>
+                      {Math.round(item.confidence * 100)}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* MODEL STATUS */}
+
+            <div className="model-status">
+              <span
+                className={
+                  model ? "status-dot ready" : "status-dot"
+                }
+              />
+
+              {status}
+            </div>
+
           </div>
         </div>
       </section>
@@ -322,6 +413,7 @@ function App() {
       {/* ABOUT SECTION */}
 
       <section className="about-section" id="about">
+
         <div className="eyebrow">
           BEHIND THE TECHNOLOGY
         </div>
@@ -338,6 +430,7 @@ function App() {
         </p>
 
         <div className="about-stats">
+
           <div>
             <strong>43</strong>
             <span>Traffic Sign Classes</span>
@@ -352,6 +445,7 @@ function App() {
             <strong>TensorFlow.js</strong>
             <span>Browser-Based Inference</span>
           </div>
+
         </div>
       </section>
 

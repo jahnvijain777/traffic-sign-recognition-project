@@ -1,6 +1,10 @@
 
 @import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap");
 
+/* =========================
+   GLOBAL STYLES
+========================= */
+
 :root {
   font-family: "Space Grotesk", sans-serif;
   color: #f8fafc;
@@ -27,6 +31,10 @@ body {
 button,
 input {
   font: inherit;
+}
+
+button {
+  cursor: pointer;
 }
 
 .shell {
@@ -187,6 +195,37 @@ input {
 }
 
 /* =========================
+   DETECTION SECTION
+========================= */
+
+.detection-section {
+  padding-top: 45px;
+  scroll-margin-top: 30px;
+}
+
+.detection-heading {
+  margin-bottom: 35px;
+  max-width: 750px;
+}
+
+.detection-heading h2 {
+  color: #f8fafc;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  line-height: 1.15;
+  margin: 18px 0;
+}
+
+.detection-heading p {
+  color: #94a3b8;
+  font-size: 1rem;
+  line-height: 1.8;
+  max-width: 620px;
+  margin-bottom: 0;
+}
+
+/* =========================
    DETECTION WORKSPACE
 ========================= */
 
@@ -194,7 +233,7 @@ input {
   display: grid;
   grid-template-columns: 1.08fr 0.92fr;
   gap: 20px;
-  scroll-margin-top: 30px;
+  align-items: stretch;
 }
 
 .dropzone,
@@ -230,6 +269,7 @@ input {
 }
 
 .dropzone img {
+  display: block;
   width: 100%;
   height: 100%;
   max-height: 390px;
@@ -284,10 +324,11 @@ input {
   display: flex;
   gap: 22px;
   align-items: center;
-  margin: 65px 0 45px;
+  margin: 55px 0 32px;
 }
 
 .result-index {
+  flex-shrink: 0;
   color: #facc15;
   font: 700 4.5rem "DM Mono", monospace;
   line-height: 1;
@@ -295,6 +336,7 @@ input {
 
 .result-copy {
   min-width: 0;
+  flex: 1;
 }
 
 .confidence {
@@ -318,6 +360,60 @@ input {
   font-size: 1rem;
   line-height: 1.6;
 }
+
+/* =========================
+   CONFIDENCE BAR
+========================= */
+
+.confidence-track {
+  width: 100%;
+  height: 7px;
+  margin-top: 18px;
+  background: #263b50;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.confidence-fill {
+  height: 100%;
+  background: #facc15;
+  border-radius: 20px;
+  transition: width 0.5s ease;
+}
+
+/* =========================
+   UPLOAD ANOTHER IMAGE
+========================= */
+
+.upload-again-button {
+  align-self: flex-start;
+  margin: 0 0 24px;
+  padding: 11px 18px;
+  border: 1px solid #facc15;
+  border-radius: 6px;
+  background: transparent;
+  color: #facc15;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.upload-again-button:hover {
+  background: #facc15;
+  color: #071426;
+}
+
+.upload-again-button:focus-visible {
+  outline: 2px solid #facc15;
+  outline-offset: 4px;
+}
+
+/* =========================
+   ALTERNATIVE PREDICTIONS
+========================= */
 
 .alternatives {
   border-top: 1px solid #263b50;
@@ -419,7 +515,7 @@ input {
 
 .about-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
   margin-top: 45px;
   padding-top: 30px;
@@ -517,6 +613,14 @@ footer {
     align-items: stretch;
   }
 
+  .detection-section {
+    padding-top: 25px;
+  }
+
+  .detection-heading {
+    margin-bottom: 25px;
+  }
+
   .workspace {
     grid-template-columns: 1fr;
   }
@@ -527,7 +631,7 @@ footer {
   }
 
   .result {
-    margin: 45px 0;
+    margin: 45px 0 30px;
   }
 
   footer {
@@ -545,9 +649,28 @@ footer {
     grid-template-columns: 1fr;
     gap: 28px;
   }
+
+  .result-card {
+    padding: 24px;
+  }
+
+  .result {
+    gap: 15px;
+  }
+
+  .result-index {
+    font-size: 3.3rem;
+  }
+
+  .upload-again-button {
+    width: 100%;
+    text-align: center;
+  }
 }
 
-/* ACCESSIBILITY */
+/* =========================
+   ACCESSIBILITY
+========================= */
 
 @media (prefers-reduced-motion: reduce) {
   *,
