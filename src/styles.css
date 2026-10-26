@@ -1247,3 +1247,60 @@ footer {
   }
 }
 
+/* FINAL CAMERA CROPPING STYLES */
+
+.crop-photo-wrap {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  max-height: 100%;
+  line-height: 0;
+  user-select: none;
+  overflow: hidden;
+}
+
+.crop-photo-wrap img {
+  display: block;
+  max-width: 100%;
+  max-height: 345px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  user-select: none;
+}
+
+.crop-interaction {
+  position: absolute;
+  inset: 0;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.crop-selection {
+  position: absolute;
+  border: 3px solid #ffdc3c;
+  background: rgba(255, 220, 60, 0.12);
+  box-shadow: 0 0 0 9999px rgba(2, 12, 28, 0.28);
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.camera-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.camera-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.camera-controls button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
